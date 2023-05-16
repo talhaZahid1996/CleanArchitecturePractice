@@ -11,6 +11,7 @@ import com.cleanarchitecture.app.domain.useCase.getCoin.GetCoinUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,12 +24,14 @@ class CoinDetailViewModel @Inject constructor(
     val state: State<CoinDetailState> = _state
 
     init {
-        savedStateHandle.get<String>(Constants.PARAM_COIN_ID)?.let { coinId ->
-            getCoin(coinId = coinId)
+        viewModelScope.launch {
+            savedStateHandle.get<String>(Constants.PARAM_COIN_ID)?.let { coinId ->
+                getCoin(coinId = coinId)
+            }
         }
     }
 
-    private fun getCoin(coinId: String) {
+    private suspend fun getCoin(coinId: String) {
         getCoinUseCase(coinId = coinId).onEach { result ->
             when (result) {
                 is Resource.Success -> {

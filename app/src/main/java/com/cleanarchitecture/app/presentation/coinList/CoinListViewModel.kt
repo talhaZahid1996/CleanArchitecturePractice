@@ -9,6 +9,7 @@ import com.cleanarchitecture.app.domain.useCase.getCoins.GetCoinsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,9 +20,13 @@ class CoinListViewModel @Inject constructor(
     private val _state = mutableStateOf(CoinListState())
     val state: State<CoinListState> = _state
 
-    init { getCoins() }
+    init {
+        viewModelScope.launch {
+            getCoins()
+        }
+    }
 
-    private fun getCoins() {
+    private suspend fun getCoins() {
         getCoinsUseCase().onEach { result ->
             when (result) {
                 is Resource.Success -> {
